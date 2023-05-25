@@ -21,11 +21,11 @@ private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger
 1. `jpa-entity` - JPA Entity
 
 ```java
-@javax.persistence.Entity
+@jakarta.persistence.Entity
 class $entity$ {
 
-    @javax.persistence.Id
-    @javax.persistence.GeneratedValue
+    @jakarta.persistence.Id
+    @jakarta.persistence.GeneratedValue
     private java.lang.Long id;
     private java.lang.String name;
 
@@ -68,10 +68,10 @@ class $entity$ {
 @lombok.Getter
 @lombok.AllArgsConstructor
 @lombok.NoArgsConstructor
-@javax.persistence.Entity
+@jakarta.persistence.Entity
 class $name$ {
-    @javax.persistence.Id
-    @javax.persistence.GeneratedValue
+    @jakarta.persistence.Id
+    @jakarta.persistence.GeneratedValue
     private Long id;
     private String name;
 }
@@ -80,20 +80,20 @@ class $name$ {
 3. `jpa-entity-id-seq` - JPA Entity Id of Sequence Generator Type
 
 ```java
-@javax.persistence.Id
-@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.SEQUENCE, generator = "$table$_id_generator")
-@javax.persistence.SequenceGenerator(name = "$table$_id_generator", sequenceName = "$table$_id_seq", allocationSize = 50)
+@jakarta.persistence.Id
+@jakarta.persistence.GeneratedValue(strategy = jakarta.persistence.GenerationType.SEQUENCE, generator = "$table$_id_generator")
+@jakarta.persistence.SequenceGenerator(name = "$table$_id_generator", sequenceName = "$table$_id_seq", allocationSize = 50)
 private Long id;
 ```
 
 4. `jpa-many-to-many` - JPA Entity property of ManyToMany Type
 
 ```java
-@javax.persistence.ManyToMany(cascade = {javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.MERGE})
-@javax.persistence.JoinTable(
+@jakarta.persistence.ManyToMany(cascade = {jakarta.persistence.CascadeType.PERSIST, jakarta.persistence.CascadeType.MERGE})
+@jakarta.persistence.JoinTable(
         name = "$join_table_name$",
-        joinColumns = {@javax.persistence.JoinColumn(name = "$id_column$", referencedColumnName = "$id_ref_column$")},
-        inverseJoinColumns = {@javax.persistence.JoinColumn(name =  "$id_join_column$", referencedColumnName =  "$id_ref_join_column$")})
+        joinColumns = {@jakarta.persistence.JoinColumn(name = "$id_column$", referencedColumnName = "$id_ref_column$")},
+        inverseJoinColumns = {@jakarta.persistence.JoinColumn(name =  "$id_join_column$", referencedColumnName =  "$id_ref_join_column$")})
 private Set<$CLASS$> $name$;
 
 ```

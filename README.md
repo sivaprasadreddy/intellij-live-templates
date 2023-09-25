@@ -10,10 +10,10 @@ You can export LiveTemplates by File -> Manage IDE Settings -> Export Settings -
 
 ## Java
 
-1. `logger` - Adds SLF4J Logger
+1. `log` - Adds SLF4J Logger
 
 ```java
-private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger($CLASS$.class);
+private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger($CLASS$.class);
 ```
 
 ## JPA
@@ -244,6 +244,34 @@ void test$Function$() throws java.lang.Exception {
 }
 ```
 
+9. `boot-dynamic-property-source` - Spring Boot DynamicPropertySource
+
+```java
+@org.springframework.test.context.DynamicPropertySource
+static void configureProperties(org.springframework.test.context.DynamicPropertyRegistry registry) {
+    registry.add("", $END$);
+}
+```
+
+## Testcontainers
+
+1. `tc-magic-jdbc-url` - Spring Boot TestPropertySource with Testcontainers magic JDBC URL
+
+```java
+@org.springframework.test.context.TestPropertySource(properties = {
+        "spring.test.database.replace=none",
+        "spring.datasource.url=jdbc:tc:postgresql:16-alpine:///db"
+})
+```
+
+2. `tc-postgres` - PostgreSQLContainer
+
+```java
+@org.testcontainers.junit.jupiter.Container
+static org.testcontainers.containers.PostgreSQLContainer<?> postgres =
+        new org.testcontainers.containers.PostgreSQLContainer<>("postgres:16-alpine");
+```
+
 ## SQL
 
 1. `flyway-table` - Flyway table creation script
@@ -288,12 +316,12 @@ create table $table$ (
 </plugin>
 ```
 
-2. `git-commit-id-plugin` - Adds git-commit-id-plugin
+2. `git-commit-id-maven-plugin` - Adds git-commit-id-maven-plugin
 
 ```xml
 <plugin>
-    <groupId>pl.project13.maven</groupId>
-    <artifactId>git-commit-id-plugin</artifactId>
+    <groupId>io.github.git-commit-id</groupId>
+    <artifactId>git-commit-id-maven-plugin</artifactId>
     <executions>
         <execution>
             <goals>
@@ -321,13 +349,15 @@ create table $table$ (
 <plugin>
     <groupId>com.diffplug.spotless</groupId>
     <artifactId>spotless-maven-plugin</artifactId>
-    <version>2.17.4</version>
+    <version>2.39.0</version>
     <configuration>
         <java>
-            <googleJavaFormat>
-                <version>1.12.0</version>
-                <style>AOSP</style>
-            </googleJavaFormat>
+            <importOrder />
+            <removeUnusedImports />
+            <palantirJavaFormat>
+                <version>2.30.0</version>
+            </palantirJavaFormat>
+            <formatAnnotations />
         </java>
     </configuration>
     <executions>
@@ -455,4 +485,27 @@ create table $table$ (
         </execution>
     </executions>
 </plugin>
+```
+
+## Docker
+
+1. `boot-Dockerfile` - Creates multistage Dockerfile for Spring Boot application
+
+```
+# the first stage of our build will extract the layers
+FROM eclipse-temurin:17.0.6_10-jre-focal as builder
+WORKDIR application
+ARG JAR_FILE=target/*.jar
+#ARG JAR_FILE=build/libs/*.jar
+COPY ${JAR_FILE} application.jar
+RUN java -Djarmode=layertools -jar application.jar extract
+
+# the second stage of our build will copy the extracted layers
+FROM eclipse-temurin:17.0.6_10-jre-focal
+WORKDIR application
+COPY --from=builder application/dependencies/ ./
+COPY --from=builder application/spring-boot-loader/ ./
+COPY --from=builder application/snapshot-dependencies/ ./
+COPY --from=builder application/application/ ./
+ENTRYPOINT ["java", "org.springframework.boot.loader.JarLauncher"]
 ```

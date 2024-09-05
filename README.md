@@ -233,12 +233,12 @@ private org.springframework.test.web.servlet.MockMvc mockMvc;
 
 @org.junit.jupiter.api.Test
 void test$Function$() throws java.lang.Exception {
-    org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder request = org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-            .get("")
+    var request = org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+            .post("")
             .contentType(org.springframework.http.MediaType.APPLICATION_JSON);
 
     mockMvc.perform(request)
-            .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk())
+            .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isCreated())
             .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content().contentType(org.springframework.http.MediaType.APPLICATION_JSON))
             .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath("", org.hamcrest.Matchers.is("")));
 }
@@ -253,6 +253,17 @@ static void configureProperties(org.springframework.test.context.DynamicProperty
 }
 ```
 
+10. `boot-datasource-jpa-properties` - Spring Boot DataSource and JPA Properties
+
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/postgres
+spring.datasource.username=postgres
+spring.datasource.password=postgres
+spring.jpa.open-in-view=false
+spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.show-sql=true
+#spring.jpa.properties.hibernate.format_sql=true
+```
 ## Testcontainers
 
 1. `tc-magic-jdbc-url` - Spring Boot TestPropertySource with Testcontainers magic JDBC URL
@@ -280,7 +291,7 @@ static org.testcontainers.containers.PostgreSQLContainer<?> postgres =
 create sequence $table$_id_seq start with 1 increment by 50;
 
 create table $table$ (
-    id bigint DEFAULT nextval('$table$_id_seq') not null,
+    id bigint default nextval('$table$_id_seq') not null,
     created_at timestamp,
     updated_at timestamp,
     primary key (id)
@@ -298,7 +309,7 @@ create table $table$ (
     <version>3.2.1</version>
     <configuration>
         <from>
-            <image>eclipse-temurin:17-jre-focal</image>
+            <image>eclipse-temurin:21-jre</image>
         </from>
         <to>
             <image>sivaprasadreddy/${project.artifactId}</image>
@@ -349,13 +360,13 @@ create table $table$ (
 <plugin>
     <groupId>com.diffplug.spotless</groupId>
     <artifactId>spotless-maven-plugin</artifactId>
-    <version>2.39.0</version>
+    <version>2.43.0</version>
     <configuration>
         <java>
             <importOrder />
             <removeUnusedImports />
             <palantirJavaFormat>
-                <version>2.30.0</version>
+                <version>2.50.0</version>
             </palantirJavaFormat>
             <formatAnnotations />
         </java>
@@ -377,10 +388,10 @@ create table $table$ (
 <plugin>
     <groupId>com.github.eirslett</groupId>
     <artifactId>frontend-maven-plugin</artifactId>
-    <version>1.12.0</version>
+    <version>1.15.0</version>
     <configuration>
         <workingDirectory>${project.basedir}/../frontend</workingDirectory>
-        <nodeVersion>v14.15.3</nodeVersion>
+        <nodeVersion>v20.14.0</nodeVersion>
     </configuration>
     <executions>
         <execution>
@@ -423,7 +434,7 @@ create table $table$ (
 <plugin>
     <groupId>com.github.eirslett</groupId>
     <artifactId>frontend-maven-plugin</artifactId>
-    <version>1.12.0</version>
+    <version>1.15.0</version>
     <executions>
         <execution>
             <id>install node and yarn</id>
@@ -432,8 +443,8 @@ create table $table$ (
             </goals>
             <configuration>
                 <workingDirectory>${project.basedir}/../frontend</workingDirectory>
-                <nodeVersion>v14.15.3</nodeVersion>
-                <yarnVersion>v1.19.2</yarnVersion>
+                <nodeVersion>v20.14.0</nodeVersion>
+                <yarnVersion>v1.22.22</yarnVersion>
             </configuration>
         </execution>
         <execution>
@@ -465,7 +476,7 @@ create table $table$ (
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-resources-plugin</artifactId>
-    <version>2.6</version>
+    <version>3.3.1</version>
     <executions>
         <execution>
             <id>Copy UI build content to public</id>
@@ -493,7 +504,7 @@ create table $table$ (
 
 ```
 # the first stage of our build will extract the layers
-FROM eclipse-temurin:17.0.6_10-jre-focal as builder
+FROM eclipse-temurin:21-jre as builder
 WORKDIR application
 ARG JAR_FILE=target/*.jar
 #ARG JAR_FILE=build/libs/*.jar
@@ -501,11 +512,11 @@ COPY ${JAR_FILE} application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
 
 # the second stage of our build will copy the extracted layers
-FROM eclipse-temurin:17.0.6_10-jre-focal
+FROM eclipse-temurin:21-jre
 WORKDIR application
 COPY --from=builder application/dependencies/ ./
 COPY --from=builder application/spring-boot-loader/ ./
 COPY --from=builder application/snapshot-dependencies/ ./
 COPY --from=builder application/application/ ./
-ENTRYPOINT ["java", "org.springframework.boot.loader.JarLauncher"]
+ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]
 ```

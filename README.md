@@ -105,8 +105,6 @@ private Set<$CLASS$> $name$;
 ```java
 @org.springframework.web.bind.annotation.RestController
 @org.springframework.web.bind.annotation.RequestMapping("/api")
-@lombok.RequiredArgsConstructor
-@lombok.extern.slf4j.Slf4j
 class $CLASS$ {
     
 }
@@ -116,9 +114,7 @@ class $CLASS$ {
 
 ```java
 @org.springframework.stereotype.Service
-@org.springframework.transaction.annotation.Transactional
-@lombok.RequiredArgsConstructor
-@lombok.extern.slf4j.Slf4j
+@org.springframework.transaction.annotation.Transactional(readOnly=true)
 public class $CLASS$ {
 
 }
@@ -128,8 +124,7 @@ public class $CLASS$ {
 
 ```java
 @org.springframework.boot.context.properties.ConfigurationProperties(prefix = "$prefix$")
-@lombok.Data
-public class ApplicationProperties {
+public class $CLASS$ {
     
 }
 ```
@@ -244,12 +239,14 @@ void test$Function$() throws java.lang.Exception {
 }
 ```
 
-9. `boot-dynamic-property-source` - Spring Boot DynamicPropertySource
+9. `boot-dynamic-property-registrar` - Spring Boot DynamicPropertyRegistrar
 
 ```java
-@org.springframework.test.context.DynamicPropertySource
-static void configureProperties(org.springframework.test.context.DynamicPropertyRegistry registry) {
-    registry.add("", $END$);
+@org.springframework.context.annotation.Bean
+org.springframework.test.context.DynamicPropertyRegistrar dynamicPropertyRegistrar() {
+    return (registry) -> {
+        registry.add("", "");
+    };
 }
 ```
 
@@ -264,6 +261,7 @@ spring.jpa.hibernate.ddl-auto=validate
 spring.jpa.show-sql=true
 #spring.jpa.properties.hibernate.format_sql=true
 ```
+
 ## Testcontainers
 
 1. `tc-magic-jdbc-url` - Spring Boot TestPropertySource with Testcontainers magic JDBC URL
@@ -271,7 +269,7 @@ spring.jpa.show-sql=true
 ```java
 @org.springframework.test.context.TestPropertySource(properties = {
         "spring.test.database.replace=none",
-        "spring.datasource.url=jdbc:tc:postgresql:16-alpine:///db"
+        "spring.datasource.url=jdbc:tc:postgresql:17-alpine:///db"
 })
 ```
 
@@ -280,7 +278,7 @@ spring.jpa.show-sql=true
 ```java
 @org.testcontainers.junit.jupiter.Container
 static org.testcontainers.containers.PostgreSQLContainer<?> postgres =
-        new org.testcontainers.containers.PostgreSQLContainer<>("postgres:16-alpine");
+        new org.testcontainers.containers.PostgreSQLContainer<>("postgres:17-alpine");
 ```
 
 ## SQL
@@ -291,8 +289,8 @@ static org.testcontainers.containers.PostgreSQLContainer<?> postgres =
 create sequence $table$_id_seq start with 1 increment by 50;
 
 create table $table$ (
-    id bigint default nextval('$table$_id_seq') not null,
-    created_at timestamp,
+    id bigint not null default nextval('$table$_id_seq'),
+    created_at timestamp not null default now(),
     updated_at timestamp,
     primary key (id)
 );
@@ -306,7 +304,7 @@ create table $table$ (
 <plugin>
     <groupId>com.google.cloud.tools</groupId>
     <artifactId>jib-maven-plugin</artifactId>
-    <version>3.2.1</version>
+    <version>3.3.4</version>
     <configuration>
         <from>
             <image>eclipse-temurin:21-jre</image>
@@ -360,7 +358,7 @@ create table $table$ (
 <plugin>
     <groupId>com.diffplug.spotless</groupId>
     <artifactId>spotless-maven-plugin</artifactId>
-    <version>2.43.0</version>
+    <version>2.44.2</version>
     <configuration>
         <java>
             <importOrder />
@@ -388,7 +386,7 @@ create table $table$ (
 <plugin>
     <groupId>com.github.eirslett</groupId>
     <artifactId>frontend-maven-plugin</artifactId>
-    <version>1.15.0</version>
+    <version>1.15.1</version>
     <configuration>
         <workingDirectory>${project.basedir}/../frontend</workingDirectory>
         <nodeVersion>v20.14.0</nodeVersion>
@@ -434,7 +432,7 @@ create table $table$ (
 <plugin>
     <groupId>com.github.eirslett</groupId>
     <artifactId>frontend-maven-plugin</artifactId>
-    <version>1.15.0</version>
+    <version>1.15.1</version>
     <executions>
         <execution>
             <id>install node and yarn</id>

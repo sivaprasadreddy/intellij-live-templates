@@ -16,6 +16,13 @@ You can export LiveTemplates by File -> Manage IDE Settings -> Export Settings -
 private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger($CLASS$.class);
 ```
 
+
+2. `at` - AssertJ assertThat()
+
+```java
+org.assertj.core.api.Assertions.assertThat($END$)
+```
+
 ## JPA
 
 1. `jpa-entity` - JPA Entity
